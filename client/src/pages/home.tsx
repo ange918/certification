@@ -16,7 +16,7 @@ export default function Home() {
   const [showAdminDashboard, setShowAdminDashboard] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     const matricule = searchInput.trim().toUpperCase();
     
     if (!matricule) {
@@ -24,7 +24,7 @@ export default function Home() {
       return;
     }
 
-    const student = findStudentByMatricule(matricule);
+    const student = await findStudentByMatricule(matricule);
     
     if (student) {
       setFoundStudent(student);

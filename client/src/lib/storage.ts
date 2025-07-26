@@ -1,81 +1,66 @@
-export interface Student {
-  id: string;
-  name: string;
-  firstName: string;
-  matricule: string;
-  filiere: string;
-  photo: string;
-}
+import type { Student } from "@shared/schema";
 
-const STORAGE_KEY = 'futur_students';
+export type { Student };
 
-const defaultStudents: Student[] = [
-  {
-    id: '1',
-    name: 'KOUAKOU',
-    firstName: 'Jean',
-    matricule: 'FUT2024001',
-    filiere: 'Informatique',
-    photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300'
-  },
-  {
-    id: '2',
-    name: 'DIABATE',
-    firstName: 'Marie',
-    matricule: 'FUT2024002',
-    filiere: 'Marketing Digital',
-    photo: 'https://images.unsplash.com/photo-1494790108755-2616b612b5bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300'
-  },
-  {
-    id: '3',
-    name: 'TRAORE',
-    firstName: 'Amadou',
-    matricule: 'FUT2024003',
-    filiere: 'Comptabilité',
-    photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300'
-  }
-];
-
-export const loadStudents = (): Student[] => {
+// API functions to interact with the database
+export const findStudentByMatricule = async (matricule: string): Promise<Student | null> => {
   try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      return JSON.parse(saved);
+    const response = await fetch(`/api/students/matricule/${encodeURIComponent(matricule)}`);
+    if (response.ok) {
+      return await response.json();
     }
-    // Initialize with default data if none exists
-    saveStudents(defaultStudents);
-    return defaultStudents;
+    return null;
+  } catch (error) {
+    console.error('Error finding student:', error);
+    return null;
+  }
+};
+
+export const getAllStudents = async (): Promise<Student[]> => {
+  try {
+    const response = await fetch('/api/students');
+    if (response.ok) {
+      return await response.json();
+    }
+    return [];
   } catch (error) {
     console.error('Error loading students:', error);
-    return defaultStudents;
+    return [];
   }
 };
 
-export const saveStudents = (students: Student[]): void => {
+export const addStudent = async (student: Omit<Student, 'id' | 'createdAt'>): Promise<Student | null> => {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(students));
+    const response = await fetch('/api/students', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(student),
+    });
+
+    if (response.ok) {
+      return await response.json();
+    } else {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to add student');
+    }
   } catch (error) {
-    console.error('Error saving students:', error);
+    console.error('Error adding student:', error);
+    throw error;
   }
 };
 
-export const findStudentByMatricule = (matricule: string): Student | null => {
-  const students = loadStudents();
-  return students.find(s => s.matricule.toUpperCase() === matricule.toUpperCase()) || null;
-};
-
-export const addStudent = (student: Omit<Student, 'id'>): Student => {
-  const students = loadStudents();
-  const newStudent: Student = {
-    ...student,
-    id: Date.now().toString()
-  };
-  students.push(newStudent);
-  saveStudents(students);
-  return newStudent;
-};
-
-export const studentMatriculeExists = (matricule: string): boolean => {
-  const students = loadStudents();
-  return students.some(s => s.matricule.toUpperCase() === matricule.toUpperCase());
+export const studentMatriculeExists = async (matricule: string): Promise<boolean> => {
+  try {
+    const response = await fetch(`/api/students/check-matricule/${encodeURIComponent(matricule)}`);
+    if (response.ok) {
+      const result = await response.json();
+      return result.exists;
+    }
+    return false;
+  } catch (error) {
+    console.error('Error checking matricule:', error);
+    return false;
+  }
 };

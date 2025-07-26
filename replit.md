@@ -39,10 +39,10 @@ Preferred communication style: Simple, everyday language.
 ## Key Components
 
 ### Data Layer
-- **Database Schema**: Simple user table with id, username, and password fields
-- **ORM**: Drizzle ORM with PostgreSQL dialect
+- **Database Schema**: Users and students tables with PostgreSQL backend
+- **ORM**: Drizzle ORM with PostgreSQL dialect and Neon Database
 - **Validation**: Zod schemas for type-safe data validation
-- **Storage Interface**: Abstracted storage layer with in-memory fallback
+- **Storage Interface**: Database storage layer with full CRUD operations
 
 ### Authentication System
 - **Admin Access**: Simple password-based authentication ("futur2025")
@@ -50,10 +50,10 @@ Preferred communication style: Simple, everyday language.
 - **Public Access**: No authentication required for certificate lookup
 
 ### Certificate Management
-- **Student Records**: Local storage with default seed data
-- **Search Functionality**: Matricule-based certificate lookup
-- **Admin Dashboard**: CRUD operations for student management
-- **Photo Management**: URL-based student photos with fallback images
+- **Student Records**: PostgreSQL database with persistent storage
+- **Search Functionality**: API-based matricule certificate lookup
+- **Admin Dashboard**: Full CRUD operations for student management
+- **Photo Management**: File upload support with base64 encoding and URL fallbacks
 
 ### UI Architecture
 - **Component Library**: Shadcn/ui components built on Radix UI
