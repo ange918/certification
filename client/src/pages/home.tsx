@@ -5,7 +5,8 @@ import { findStudentByMatricule, Student } from "@/lib/storage";
 import CertificateCard from "@/components/certificate-card";
 import AdminLoginModal from "@/components/admin-login-modal";
 import AdminDashboard from "@/components/admin-dashboard";
-import { Tag, Search, Shield, AlertTriangle } from "lucide-react";
+import Footer from "@/components/footer";
+import { Tag, Search, Shield, AlertTriangle, CheckCircle } from "lucide-react";
 
 export default function Home() {
   const [searchInput, setSearchInput] = useState('');
@@ -168,6 +169,9 @@ export default function Home() {
         onLogin={handleAdminLogin}
         onError={(msg) => showMessage('error', msg)}
       />
+
+      {/* Footer */}
+      {!showAdminDashboard && <Footer />}
     </div>
   );
 }

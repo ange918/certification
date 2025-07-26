@@ -144,15 +144,36 @@ export default function AdminDashboard({ isOpen, onClose, onSuccess, onError }: 
               </Select>
             </div>
             <div className="md:col-span-2">
-              <label className="block text-sm font-semibold mb-2 text-text-light">URL Photo</label>
-              <Input
-                type="url"
-                value={formData.photo}
-                onChange={(e) => setFormData({ ...formData, photo: e.target.value })}
-                placeholder="https://example.com/photo.jpg"
-                className="w-full px-4 py-3 bg-primary-bg border border-accent-cyan/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-accent-cyan focus:ring-2 focus:ring-accent-cyan/20 transition-all"
-                required
-              />
+              <label className="block text-sm font-semibold mb-2 text-text-light">Photo de l'étudiant</label>
+              <div className="relative">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onload = (event) => {
+                        setFormData({ ...formData, photo: event.target?.result as string });
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                  className="w-full px-4 py-3 bg-primary-bg border border-accent-cyan/30 rounded-lg text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-accent-cyan file:text-primary-bg hover:file:bg-cyan-400 transition-all"
+                  required
+                />
+                {formData.photo && (
+                  <div className="mt-4 flex justify-center">
+                    <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-accent-cyan/30">
+                      <img
+                        src={formData.photo}
+                        alt="Aperçu"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
             <div className="md:col-span-2">
               <Button
