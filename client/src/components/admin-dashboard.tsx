@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { getAllStudents, addStudent, studentMatriculeExists, type Student } from "@/lib/storage";
+import { loadStudents, addStudent, studentMatriculeExists, Student } from "@/lib/storage";
 import { Gauge, UserPlus, LogOut, Users, CheckCircle } from "lucide-react";
 
 interface AdminDashboardProps {
@@ -24,15 +24,11 @@ export default function AdminDashboard({ isOpen, onClose, onSuccess, onError }: 
 
   useEffect(() => {
     if (isOpen) {
-      const loadData = async () => {
-        const data = await getAllStudents();
-        setStudents(data);
-      };
-      loadData();
+      setStudents(loadStudents());
     }
   }, [isOpen]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validate required fields
@@ -41,8 +37,14 @@ export default function AdminDashboard({ isOpen, onClose, onSuccess, onError }: 
       return;
     }
 
+    // Check if matricule already exists
+    if (studentMatriculeExists(formData.matricule)) {
+      onError('Ce matricule existe déjà');
+      return;
+    }
+
     try {
-      const newStudent = await addStudent({
+      const newStudent = addStudent({
         name: formData.name.trim().toUpperCase(),
         firstName: formData.firstName.trim(),
         matricule: formData.matricule.trim().toUpperCase(),
@@ -50,8 +52,7 @@ export default function AdminDashboard({ isOpen, onClose, onSuccess, onError }: 
         photo: formData.photo.trim()
       });
 
-      const updatedStudents = await getAllStudents();
-      setStudents(updatedStudents);
+      setStudents(loadStudents());
       setFormData({
         name: '',
         firstName: '',
@@ -60,8 +61,8 @@ export default function AdminDashboard({ isOpen, onClose, onSuccess, onError }: 
         photo: ''
       });
       onSuccess('Étudiant ajouté avec succès!');
-    } catch (error: any) {
-      onError(error.message || 'Erreur lors de l\'ajout de l\'étudiant');
+    } catch (error) {
+      onError('Erreur lors de l\'ajout de l\'étudiant');
     }
   };
 
